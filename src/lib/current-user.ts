@@ -1,0 +1,50 @@
+import { headers } from "next/headers";
+import { connectDB } from "./db";
+import { getAuthTokenFromRequest, verifyAuthToken } from "./auth";
+import UserModel, { UserDocument } from "@/models/User";
+
+export interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}
+
+export async function getSessionUser(
+  requireAuth = true
+): Promise<SessionUser | null> {
+  const headerStore = headers();
+  const authHeader = headerStore.get("authorization");
+  const bearerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : null;
+
+  const cookieToken = getAuthTokenFromRequest();
+
+  const token = bearerToken ?? cookieToken;
+
+  if (!token) {
+    if (requireAuth) {
+      throw new Error("Unauthorized");
+    }
+    return null;
+  }
+
+  const payload = verifyAuthToken(token);
+  await connectDB();
+  const userDoc = await UserModel.findById(payload.userId).lean<UserDocument>();
+  if (!userDoc) {
+    if (requireAuth) {
+      throw new Error("Unauthorized");
+    }
+    return null;
+  }
+
+  return {
+    id: userDoc._id.toString(),
+    email: userDoc.email,
+    name: userDoc.name,
+    role: userDoc.role
+  };
+}
+

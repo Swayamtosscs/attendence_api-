@@ -1,0 +1,82 @@
+import { Schema, model, models } from "mongoose";
+
+export type UserRole = "admin" | "manager" | "employee";
+
+export interface UserDocument {
+  _id: Schema.Types.ObjectId;
+  name: string;
+  email: string;
+  passwordHash: string;
+  role: UserRole;
+  department?: string;
+  designation?: string;
+  status: "active" | "inactive";
+  manager?: Schema.Types.ObjectId;
+  lastLoginAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const userSchema = new Schema<UserDocument>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      index: true
+    },
+    passwordHash: {
+      type: String,
+      required: true
+    },
+    role: {
+      type: String,
+      enum: ["admin", "manager", "employee"],
+      default: "employee",
+      required: true
+    },
+    department: {
+      type: String,
+      trim: true
+    },
+    designation: {
+      type: String,
+      trim: true
+    },
+    status: {
+      type: String,
+      enum: ["active", "inactive"],
+      default: "active"
+    },
+    manager: {
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    },
+    lastLoginAt: Date
+  },
+  { timestamps: true }
+);
+
+userSchema.set("toJSON", {
+  transform: (_doc, ret) => {
+    // eslint-disable-next-line no-param-reassign
+    delete ret.passwordHash;
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  }
+});
+
+const UserModel = models.User || model<UserDocument>("User", userSchema);
+
+export default UserModel;
+
+
+
