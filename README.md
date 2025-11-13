@@ -4,11 +4,7 @@ Backend API for a multi-role attendance tracking system built with Next.js Route
 
 ## Environment
 
-Create a `.env.local` file with:
 
-```
-MONGODB_URI=mongodb://Toss:Toss@123@103.14.120.163:27017/attendence?authSource=admin
-AUTH_SECRET=your-long-random-secret
 ```
 
 ## Setup
