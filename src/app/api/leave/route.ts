@@ -1,4 +1,5 @@
 import { NextRequest } from "next/server";
+import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import LeaveRequestModel from "@/models/LeaveRequest";
 import UserModel from "@/models/User";
@@ -20,9 +21,9 @@ export async function GET() {
     if (sessionUser.role === "employee") {
       filter.user = sessionUser.id;
     } else if (sessionUser.role === "manager") {
-      const managedUsers = await UserModel.find({ manager: sessionUser.id })
+      const managedUsers = (await UserModel.find({ manager: sessionUser.id })
         .select("_id")
-        .lean();
+        .lean()) as Array<{ _id: mongoose.Types.ObjectId }>;
       filter.user = {
         $in: [sessionUser.id, ...managedUsers.map((user) => user._id.toString())]
       };
@@ -66,9 +67,8 @@ export async function POST(request: NextRequest) {
 
     await connectDB();
 
-    const manager =
-      (await UserModel.findOne({ _id: sessionUser.id }).select("manager").lean())
-        ?.manager ?? undefined;
+    const managerUser = (await UserModel.findOne({ _id: sessionUser.id }).select("manager").lean()) as Pick<import("@/models/User").UserDocument, "manager"> | null;
+    const manager = managerUser?.manager ?? undefined;
 
     const leaveRequest = await LeaveRequestModel.create({
       user: sessionUser.id,

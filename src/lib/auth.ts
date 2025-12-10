@@ -8,6 +8,9 @@ if (!AUTH_SECRET) {
   throw new Error("Missing environment variable AUTH_SECRET");
 }
 
+// Type assertion after runtime check
+const AUTH_SECRET_STRING: string = AUTH_SECRET;
+
 export const AUTH_COOKIE_NAME = "attendance_token";
 
 export interface AuthTokenPayload {
@@ -28,13 +31,13 @@ export function verifyPassword(
 }
 
 export function signAuthToken(payload: AuthTokenPayload): string {
-  return jwt.sign(payload, AUTH_SECRET, {
+  return jwt.sign(payload, AUTH_SECRET_STRING, {
     expiresIn: "7d"
   });
 }
 
 export function verifyAuthToken(token: string): AuthTokenPayload {
-  return jwt.verify(token, AUTH_SECRET) as AuthTokenPayload;
+  return jwt.verify(token, AUTH_SECRET_STRING) as AuthTokenPayload;
 }
 
 export function setAuthCookie(token: string): void {

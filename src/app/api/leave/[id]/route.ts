@@ -29,10 +29,10 @@ export async function GET(
     const leaveId = ensureObjectId(params.id);
     await connectDB();
 
-    const leave = await LeaveRequestModel.findById(leaveId)
+    const leave = (await LeaveRequestModel.findById(leaveId)
       .populate("user", "name email role manager")
       .populate("manager", "name email role")
-      .lean();
+      .lean()) as any;
 
     if (!leave) {
       return errorResponse("Leave request not found", { status: 404 });
@@ -81,9 +81,9 @@ export async function PATCH(
       sessionUser.role === "manager" &&
       leave.manager?.toString() !== sessionUser.id
     ) {
-      const targetUser = await UserModel.findById(leave.user)
+      const targetUser = (await UserModel.findById(leave.user)
         .select("manager")
-        .lean();
+        .lean()) as Pick<import("@/models/User").UserDocument, "manager"> | null;
       if (targetUser?.manager?.toString() !== sessionUser.id) {
         return errorResponse("Forbidden", { status: 403 });
       }

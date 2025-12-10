@@ -28,19 +28,14 @@ export async function GET(request: NextRequest) {
     }
 
     if (parsed.startDate || parsed.endDate) {
-      filter.date = {};
+      const dateFilter: Record<string, Date> = {};
       if (parsed.startDate) {
-        filter.date = {
-          ...filter.date,
-          $gte: new Date(parsed.startDate)
-        };
+        dateFilter.$gte = new Date(parsed.startDate);
       }
       if (parsed.endDate) {
-        filter.date = {
-          ...filter.date,
-          $lte: new Date(parsed.endDate)
-        };
+        dateFilter.$lte = new Date(parsed.endDate);
       }
+      filter.date = dateFilter;
     }
 
     let allowedUserIds: string[] = [];
@@ -48,9 +43,9 @@ export async function GET(request: NextRequest) {
     if (sessionUser.role === "employee") {
       allowedUserIds = [sessionUser.id];
     } else if (sessionUser.role === "manager") {
-      const managedUsers = await UserModel.find({ manager: sessionUser.id })
+      const managedUsers = (await UserModel.find({ manager: sessionUser.id })
         .select("_id")
-        .lean();
+        .lean()) as Array<{ _id: mongoose.Types.ObjectId }>;
       allowedUserIds = [
         sessionUser.id,
         ...managedUsers.map((u) => u._id.toString())

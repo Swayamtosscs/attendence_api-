@@ -2,7 +2,7 @@ import { connectDB } from "@/lib/db";
 import { handleApiError } from "@/lib/api-response";
 import { errorResponse, jsonResponse } from "@/lib/http";
 import { getSessionUser } from "@/lib/current-user";
-import UserModel from "@/models/User";
+import UserModel, { UserDocument } from "@/models/User";
 
 export async function GET() {
   try {
@@ -12,7 +12,7 @@ export async function GET() {
     }
     await connectDB();
 
-    const user = await UserModel.findById(sessionUser.id).lean();
+    const user = (await UserModel.findById(sessionUser.id).lean()) as UserDocument | null;
     if (!user) {
       return errorResponse("User not found", { status: 404 });
     }

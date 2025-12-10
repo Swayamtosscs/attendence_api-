@@ -216,3 +216,4 @@ curl -X DELETE http://localhost:8087/api/users/me/avatar -H "Authorization: Bear
 - **500 Server Error:** Check server logs for details
 
 
+

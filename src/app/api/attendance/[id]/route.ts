@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import AttendanceModel from "@/models/Attendance";
-import UserModel from "@/models/User";
+import UserModel, { UserDocument } from "@/models/User";
 import { getSessionUser } from "@/lib/current-user";
 import { handleApiError } from "@/lib/api-response";
 import { errorResponse, jsonResponse } from "@/lib/http";
@@ -33,10 +33,13 @@ async function ensurePermission(
     if (sessionUserId === targetUserId) {
       return true;
     }
-    const targetUser = await UserModel.findById(targetUserId)
+    const targetUser = (await UserModel.findById(targetUserId)
       .select("manager")
-      .lean();
-    return targetUser?.manager?.toString() === sessionUserId;
+      .lean()) as Pick<UserDocument, "manager"> | null;
+    if (!targetUser || !targetUser.manager) {
+      return false;
+    }
+    return targetUser.manager.toString() === sessionUserId;
   }
 
   return false;
@@ -55,9 +58,9 @@ export async function GET(
     const attendanceId = ensureObjectId(params.id);
 
     await connectDB();
-    const attendance = await AttendanceModel.findById(attendanceId)
+    const attendance = (await AttendanceModel.findById(attendanceId)
       .populate("user", "name email role manager")
-      .lean();
+      .lean()) as any;
 
     if (!attendance) {
       return errorResponse("Attendance record not found", { status: 404 });
@@ -178,10 +181,10 @@ export async function DELETE(
       sessionUser.role === "manager" &&
       attendance.user.toString() !== sessionUser.id
     ) {
-      const targetUser = await UserModel.findById(attendance.user)
+      const targetUser = (await UserModel.findById(attendance.user)
         .select("manager")
-        .lean();
-      if (targetUser?.manager?.toString() !== sessionUser.id) {
+        .lean()) as Pick<UserDocument, "manager"> | null;
+      if (!targetUser || !targetUser.manager || targetUser.manager.toString() !== sessionUser.id) {
         return errorResponse("Forbidden", { status: 403 });
       }
     }

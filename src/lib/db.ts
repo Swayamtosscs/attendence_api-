@@ -14,6 +14,9 @@ if (!MONGODB_URI) {
   throw new Error("Missing environment variable MONGODB_URI");
 }
 
+// Type assertion after runtime check
+const MONGODB_URI_STRING: string = MONGODB_URI;
+
 let cached = global.mongooseConnection;
 
 if (!cached) {
@@ -27,7 +30,7 @@ export async function connectDB(): Promise<typeof mongoose> {
 
   if (!cached?.promise) {
     cached!.promise = mongoose
-      .connect(MONGODB_URI, {
+      .connect(MONGODB_URI_STRING, {
         bufferCommands: false
       })
       .then((m) => m);

@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
-import UserModel from "@/models/User";
+import UserModel, { UserDocument } from "@/models/User";
 import { handleApiError } from "@/lib/api-response";
 import { errorResponse, jsonResponse } from "@/lib/http";
 import { getSessionUser } from "@/lib/current-user";
@@ -42,9 +42,9 @@ export async function GET(
       return errorResponse("Forbidden", { status: 403 });
     }
 
-    const user = await UserModel.findById(id)
+    const user = (await UserModel.findById(id)
       .select("-passwordHash")
-      .lean();
+      .lean()) as Omit<UserDocument, "passwordHash"> | null;
 
     if (!user) {
       return errorResponse("User not found", { status: 404 });
