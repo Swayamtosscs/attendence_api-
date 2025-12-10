@@ -23,7 +23,12 @@ async function connectDB() {
   }
 
   return mongoose.connect(MONGODB_URI, {
-    bufferCommands: false
+    bufferCommands: false,
+    serverSelectionTimeoutMS: 10000, // 10 seconds
+    socketTimeoutMS: 45000, // 45 seconds
+    connectTimeoutMS: 10000, // 10 seconds
+    maxPoolSize: 10,
+    retryWrites: true
   });
 }
 

@@ -31,7 +31,12 @@ export async function connectDB(): Promise<typeof mongoose> {
   if (!cached?.promise) {
     cached!.promise = mongoose
       .connect(MONGODB_URI_STRING, {
-        bufferCommands: false
+        bufferCommands: false,
+        serverSelectionTimeoutMS: 10000, // 10 seconds
+        socketTimeoutMS: 45000, // 45 seconds
+        connectTimeoutMS: 10000, // 10 seconds
+        maxPoolSize: 10,
+        retryWrites: true
       })
       .then((m) => m);
   }
