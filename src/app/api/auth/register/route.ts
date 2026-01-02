@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
         role: user.role,
         department: user.department,
         designation: user.designation
-      }
+      },
+      token
     });
   } catch (error) {
     return handleApiError("auth/register", error);

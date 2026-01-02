@@ -82,3 +82,18 @@ export const getMessagesQuerySchema = z.object({
   before: z.string().datetime().optional()
 });
 
+export const workLocationCreateSchema = z.object({
+  name: z.string().min(1).max(200),
+  latitude: z.number().min(-90).max(90),
+  longitude: z.number().min(-180).max(180),
+  radius: z.number().min(1).max(10000)
+});
+
+export const workLocationUpdateSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+  radius: z.number().min(1).max(10000).optional(),
+  isActive: z.boolean().optional()
+});
+

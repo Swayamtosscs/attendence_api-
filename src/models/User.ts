@@ -14,6 +14,21 @@ export interface UserDocument {
   manager?: Schema.Types.ObjectId;
   profilePicture?: string;
   lastLoginAt?: Date;
+
+  // Personal Information
+  phone?: string;
+  dob?: Date;
+  gender?: "Male" | "Female" | "Other";
+  bloodGroup?: string;
+  address?: string;
+
+  // Work Information
+  joinDate?: Date;
+  workLocation?: string;
+  shiftTiming?: string;
+  team?: string;
+  employeeType?: "Full-time" | "Part-time" | "Contract" | "Intern";
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -63,7 +78,49 @@ const userSchema = new Schema<UserDocument>(
       type: String,
       trim: true
     },
-    lastLoginAt: Date
+    lastLoginAt: Date,
+
+    // Personal Information
+    phone: {
+      type: String,
+      trim: true
+    },
+    dob: {
+      type: Date
+    },
+    gender: {
+      type: String,
+      enum: ["Male", "Female", "Other"]
+    },
+    bloodGroup: {
+      type: String,
+      trim: true
+    },
+    address: {
+      type: String,
+      trim: true
+    },
+
+    // Work Information
+    joinDate: {
+      type: Date
+    },
+    workLocation: {
+      type: String,
+      trim: true
+    },
+    shiftTiming: {
+      type: String,
+      trim: true
+    },
+    team: {
+      type: String,
+      trim: true
+    },
+    employeeType: {
+      type: String,
+      enum: ["Full-time", "Part-time", "Contract", "Intern"]
+    }
   },
   { timestamps: true }
 );
