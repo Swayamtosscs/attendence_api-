@@ -32,7 +32,10 @@ export const attendanceCheckInSchema = z.object({
 });
 
 export const attendanceCheckOutSchema = z.object({
-  notes: z.string().optional()
+  notes: z.string().optional(),
+  latitude: z.number().optional(),
+  longitude: z.number().optional(),
+  deviceInfo: z.string().optional()
 });
 
 export const attendanceQuerySchema = z.object({
